@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+  hive-server:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive-server
+    environment:
+      - HIVE_CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    depends_on:
+      - namenode
+      - datanode
+      - spark-master
+    ports:
+      - "10000:10000"
+    networks:
+      - hadoop
+    volumes:
+      - hive_server_data:/opt/hive
+
+  hive-metastore:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive-metastore
+    environment:
+      - HIVE_CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    depends_on:
+      - namenode
+      - datanode
+    networks:
+      - hadoop
+    volumes:
+      - hive_metastore_data:/opt/hive
+
+  hive-metastore-postgresql:
+    image: postgres:9.5
+    container_name: hive-metastore-postgresql
+    environment:
+      - POSTGRES_DB=metastore
+      - POSTGRES_USER=hive
+      - POSTGRES_PASSWORD=hive
+    networks:
+      - hadoop
+    volumes:
+      - hive_metastore_postgresql_data:/var/lib/postgresql/data
+
+networks:
+  hadoop:
+    ipam:
+        driver: default
+        config:
+          - subnet: 172.21.0.0/24
+            gateway: 172.21.0.1
+
+volumes:
+  hive_server_data:
+    driver: local
+  hive_metastore_data:
+    driver: local
+  hive_metastore_postgresql_data:
+    driver: local
