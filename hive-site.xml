@@ -1,0 +1,83 @@
+<configuration>
+    <!-- Configuration du système de fichiers par défaut pour HDFS -->
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://namenode:9000</value>
+    </property>
+
+    <!-- Emplacement dans HDFS pour les fichiers temporaires -->
+    <property>
+        <name>hive.exec.scratchdir</name>
+        <value>/tmp/hive</value>
+    </property>
+
+    <!-- Port d'écoute pour le service HiveServer2 Thrift -->
+    <property>
+        <name>hive.server2.thrift.port</name>
+        <value>10000</value>
+    </property>
+
+    <!-- Configuration de la connexion au Metastore -->
+    <property>
+        <name>javax.jdo.option.ConnectionURL</name>
+        <value>jdbc:postgresql://hive-metastore-db:5432/metastore</value>
+        <description>URL de la base de données du Metastore Hive</description>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionDriverName</name>
+        <value>org.postgresql.Driver</value>
+        <description>Driver JDBC pour PostgreSQL</description>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionUserName</name>
+        <value>hive</value>
+        <description>Nom d'utilisateur pour la base de données du Metastore</description>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionPassword</name>
+        <value>hive</value>
+        <description>Mot de passe pour la base de données du Metastore</description>
+    </property>
+
+    <!-- Activer le mode de transaction dans Hive -->
+    <property>
+        <name>hive.support.concurrency</name>
+        <value>true</value>
+    </property>
+
+    <property>
+        <name>hive.enforce.bucketing</name>
+        <value>true</value>
+    </property>
+
+    <property>
+        <name>hive.exec.dynamic.partition.mode</name>
+        <value>nonstrict</value>
+    </property>
+
+    <property>
+        <name>hive.txn.manager</name>
+        <value>org.apache.hadoop.hive.ql.lockmgr.DbTxnManager</value>
+    </property>
+
+    <property>
+        <name>hive.compactor.initiator.on</name>
+        <value>true</value>
+    </property>
+
+    <property>
+        <name>hive.compactor.worker.threads</name>
+        <value>1</value>
+    </property>
+
+    <!-- Configuration de la sécurité (désactiver l'authentification pour simplifier la configuration) -->
+    <property>
+        <name>hive.server2.authentication</name>
+        <value>NONE</value>
+    </property>
+
+    <!-- Ajoutez d'autres propriétés de configuration selon vos besoins -->
+</configuration>

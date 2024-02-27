@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  postgresql:
+    image: postgres:9.6
+    container_name: postgresql
+    environment:
+      - POSTGRES_USER=debug
+      - POSTGRES_PASSWORD=debug
+      - POSTGRES_DB=maindb
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    mem_limit: 1g
+    networks:
+      - hadoop
+
+networks:
+  hadoop:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/24
+          gateway: 172.21.0.1
+
+volumes:
+  postgresql_data:
+    driver: local

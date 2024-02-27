@@ -1,59 +1,67 @@
-version: '3'
+version: '3' 
 
 services:
+  datanode:
+    extends:
+      file: hadoop.yml
+      service: datanode
+  namenode:
+    extends:
+      file: hadoop.yml
+      service: namenode
   hive-server:
-    image: bde2020/hive:2.3.2-postgresql-metastore
+    image: fjardim/hive
     container_name: hive-server
+    hostname: hive_server
+    env_file:
+      - ./hadoop-hive.env
     environment:
-      - HIVE_CORE_CONF_fs_defaultFS=hdfs://namenode:9000
-    depends_on:
-      - namenode
-      - datanode
-      - spark-master
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+      SERVICE_PRECONDITION: "hive-metastore:9083"
     ports:
       - "10000:10000"
-    networks:
-      - hadoop
-    volumes:
-      - hive_server_data:/opt/hive
-
-  hive-metastore:
-    image: bde2020/hive:2.3.2-postgresql-metastore
-    container_name: hive-metastore
-    environment:
-      - HIVE_CORE_CONF_fs_defaultFS=hdfs://namenode:9000
     depends_on:
-      - namenode
-      - datanode
+      - hive-metastore
+    volumes:
+      - ./data/teste:/teste
+    mem_limit: 1g
     networks:
       - hadoop
-    volumes:
-      - hive_metastore_data:/opt/hive
-
-  hive-metastore-postgresql:
-    image: postgres:9.5
-    container_name: hive-metastore-postgresql
+  
+  
+  hive-metastore:
+    image: fjardim/hive
+    container_name: hive_metastore
+    hostname: hive_metastore
+    env_file:
+      - ./hadoop-hive.env
+    command: /opt/hive/bin/hive --service metastore
     environment:
-      - POSTGRES_DB=metastore
-      - POSTGRES_USER=hive
-      - POSTGRES_PASSWORD=hive
+      SERVICE_PRECONDITION: "hive-metastore-postgresql:5432"
+    ports:
+      - "9083:9083"
+    depends_on:
+      - hive-metastore-postgresql
+    mem_limit: 1g
     networks:
       - hadoop
+  
+  
+  hive-metastore-postgresql:
+    image: fjardim/hive-metastore
+    container_name: hive-metastore-postgresql
+    hostname: hive_metastore_postgresql
     volumes:
-      - hive_metastore_postgresql_data:/var/lib/postgresql/data
-
+      - ./data/hive_pgdata:/var/lib/postgresql/data
+    depends_on:
+      - datanode
+    mem_limit: 1g
+    networks:
+      - hadoop
 networks:
   hadoop:
     ipam:
-        driver: default
-        config:
-          - subnet: 172.21.0.0/24
-            gateway: 172.21.0.1
-
-volumes:
-  hive_server_data:
-    driver: local
-  hive_metastore_data:
-    driver: local
-  hive_metastore_postgresql_data:
-    driver: local
+      driver: default
+      config:
+        - subnet: 172.21.0.0/24
+          gateway: 172.21.0.1
